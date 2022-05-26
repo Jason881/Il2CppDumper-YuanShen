@@ -242,16 +242,18 @@ namespace Il2CppDumper
 
                     // custom search
                     // searching .text for the following pattern:
+                    // lea r9,  [rip+0x????????]
                     // lea r8,  [rip+0x????????]
                     // lea rdx, [rip+0x????????]
                     // lea rcx, [rip+0x????????]
                     // jmp [rip+0x????????]
                     // or...
+                    // 4c 8d 0d ?? ?? ?? ?? 
                     // 4c 8d 05 ?? ?? ?? ??
                     // 48 8d 15 ?? ?? ?? ??
                     // 48 8d 0d ?? ?? ?? ??
                     // e9
-                    // 22 bytes long
+                    // 29 bytes long
 
                     // .text is always the first section
                     var text_start = ((PE)il2Cpp).Sections[0].VirtualAddress + baseaddr;
@@ -264,14 +266,15 @@ namespace Il2CppDumper
                     {
                         Marshal.Copy((IntPtr)ptr, d, 0, patternLength);
                         if (
-                            d[ 0] == 0x4C && d[ 1] == 0x8D && d[ 2] == 0x05 &&
-                            d[ 7] == 0x48 && d[ 8] == 0x8D && d[ 9] == 0x15 &&
-                            d[14] == 0x48 && d[15] == 0x8D && d[16] == 0x0D &&
-                            d[21] == 0xE9
+                            d[ 0] == 0x4C && d[ 1] == 0x8D && d[ 2] == 0x0d &&
+                            d[ 7] == 0x4C && d[ 8] == 0x8D && d[ 9] == 0x05 &&
+                            d[14] == 0x48 && d[15] == 0x8D && d[16] == 0x15 &&
+                            d[21] == 0x48 && d[22] == 0x8D && d[23] == 0x0D &&
+                            d[28] == 0xE9
                         )
                         {
-                            codeRegistration = ptr + 21 + BitConverter.ToUInt32(d, 14 + 3);
-                            metadataRegistration = ptr + 14 + BitConverter.ToUInt32(d, 7 + 3);
+                            codeRegistration = ptr + 28 + BitConverter.ToUInt32(d, 21 + 3);
+                            metadataRegistration = ptr + 21 + BitConverter.ToUInt32(d, 14 + 3);
                             Console.WriteLine($"Found the offsets! codeRegistration: 0x{(codeRegistration - baseaddr).ToString("X2")}, metadataRegistration: 0x{(metadataRegistration - baseaddr).ToString("X2")}");
                             break;
                         }
