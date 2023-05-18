@@ -17,7 +17,7 @@ def get_addr(addr):
 def set_name(addr, name):
 	ret = idc.set_name(addr, name, SN_NOWARN | SN_NOCHECK)
 	if ret == 0:
-		new_name = name + '_' + str(addr)
+		new_name = f'{name}_{str(addr)}'
 		ret = idc.set_name(addr, new_name, SN_NOWARN | SN_NOCHECK)
 
 def make_function(start, end):
