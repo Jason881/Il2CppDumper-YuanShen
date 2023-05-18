@@ -17,7 +17,7 @@ def get_addr(addr):
 def set_name(addr, name):
 	ret = idc.set_name(addr, name, SN_NOWARN | SN_NOCHECK)
 	if ret == 0:
-		new_name = name + '_' + str(addr)
+		new_name = f'{name}_{str(addr)}'
 		ret = idc.set_name(addr, new_name, SN_NOWARN | SN_NOCHECK)
 
 def make_function(start, end):
@@ -51,16 +51,13 @@ if "ScriptMethod" in data and "ScriptMethod" in processFields:
 			print("apply_type failed:", hex(addr), signature)
 
 if "ScriptString" in data and "ScriptString" in processFields:
-	index = 1
 	scriptStrings = data["ScriptString"]
-	for scriptString in scriptStrings:
+	for index, scriptString in enumerate(scriptStrings, start=1):
 		addr = get_addr(scriptString["Address"])
 		value = scriptString["Value"]
-		name = "StringLiteral_" + str(index)
+		name = f"StringLiteral_{str(index)}"
 		idc.set_name(addr, name, SN_NOWARN)
 		idc.set_cmt(addr, value, 1)
-		index += 1
-
 if "ScriptMetadata" in data and "ScriptMetadata" in processFields:
 	scriptMetadatas = data["ScriptMetadata"]
 	for scriptMetadata in scriptMetadatas:
